@@ -33,18 +33,18 @@ def process_data(file_list, save_name='tf-idf.model'):
     :param save_name: 
     :return: 
     '''
-    vectorizer = CountVectorizer(input='content', tokenizer=segment, analyzer='word')
+    vectoring = TfidfVectorizer(input='content', tokenizer=segment, analyzer='word')
     content = []
     file_cnt = []
     for file_name in file_list:
         before_size = len(content)
         content.extend(open(file_name,'r').readlines())
         file_cnt.append(len(content)-before_size)
-    x = vectorizer.fit_transform(content)
+    x = vectoring.fit_transform(content)
 
-    y = np.concatenate((np.repeat([[0,1]], file_cnt[0],axis=0),
-                        np.repeat([[1, 0]], file_cnt[1], axis=0)), axis=0)
-    data = pickle.dumps((x, y))
+    y = np.concatenate((np.repeat([1], file_cnt[0],axis=0),
+                        np.repeat([0], file_cnt[1], axis=0)), axis=0)
+    data = pickle.dumps((x, y, vectoring))
     with open(save_name, 'w') as f:
         f.write(data)
     return
@@ -56,8 +56,8 @@ def load_data(model_name='tf-idf.model'):
     :param model_name: 
     :return: 
     '''
-    x, y = pickle.loads(open(model_name,'r').read())
-    return x, y
+    x, y, vectoring = pickle.loads(open(model_name,'r').read())
+    return x, y, vectoring
 
 
 
